@@ -17,7 +17,7 @@ public class UserDaoJDBCImpl implements UserDao {
             try {
                 connection.setAutoCommit(false);
                 Statement statement = connection.createStatement();
-                String sql = "CREATE TABLE IF NOT EXISTS USERS " +
+                String sql = "CREATE TABLE IF NOT EXISTS user " +
                         "(id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, " +
                         " name VARCHAR(20), " +
                         " lastname VARCHAR(20), " +
@@ -38,7 +38,7 @@ public class UserDaoJDBCImpl implements UserDao {
             try {
                 connection.setAutoCommit(false);
                 Statement statement = connection.createStatement();
-                String sql = "DROP TABLE IF EXISTS USERS;";
+                String sql = "DROP TABLE IF EXISTS user;";
                 statement.executeUpdate(sql);
                 connection.commit();
             } catch (SQLException e) {
@@ -54,10 +54,13 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Connection connection = Util.getConnection()) {
             try {
                 connection.setAutoCommit(false);
-                Statement statement = connection.createStatement();
-                String sql = "INSERT user(name, lastname, age) " +
-                        "VALUES ('" + name + "', '" + lastName + "', " + age + "); ";
-                statement.executeUpdate(sql);
+                String sql = "INSERT INTO user(name, lastName, age) " +
+                        "VALUES (?, ?, ?) ";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(1, name);
+                statement.setString(2, lastName);
+                statement.setByte(3, age);
+                statement.executeUpdate();
                 connection.commit();
             } catch (SQLException e) {
                 connection.rollback();
@@ -86,27 +89,35 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public List<User> getAllUsers() {
-        try (Connection connection = Util.getConnection()) {
-            Statement statement = connection.createStatement();
-            String sql = "SELECT * FROM user";
-            ResultSet resultSet = statement.executeQuery(sql);
-            List<User> result = new ArrayList<>();
+        List<User> list = new ArrayList<>();
+        String sqlRequest = "SELECT * FROM user";
+        try (Statement statement = Util.getConnection().createStatement()) {
+            statement.execute(sqlRequest);
+            ResultSet resultSet = statement.executeQuery(sqlRequest);
+
             while (resultSet.next()) {
-                Long id = resultSet.getLong("id");
+                long id = resultSet.getLong("id");
                 String name = resultSet.getString("name");
-                String lastName = resultSet.getString("lastname");
-                Byte age = resultSet.getByte("age");
+                String lastName = resultSet.getString("lastName");
+                byte age = resultSet.getByte("age");
 
                 User user = new User(name, lastName, age);
                 user.setId(id);
 
-                result.add(user);
+                list.add(user);
+                System.out.println("User с именем - " + user.getName() + " добавлен в базу данных");
             }
-            return result;
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+
+
+        } catch (SQLException e) {
+            System.out.println("Ошибка SQL");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Проблема с драйвером!");
         }
+
+        return list;
     }
+
 
     public void cleanUsersTable() {
         try (Connection connection = Util.getConnection()) {
