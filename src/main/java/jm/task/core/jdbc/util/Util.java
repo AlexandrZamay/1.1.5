@@ -14,4 +14,11 @@ public class Util {
         return connection;
         // реализуйте настройку соеденения с БД
     }
+
+//    public static Connection getConnection() throws SQLException, ClassNotFoundException {
+//        Class.forName("com.mysql.cj.jdbc.Driver");
+//        Connection connection = DriverManager.getConnection(URL, login, password);
+//        return connection;
+//        // реализуйте настройку соеденения с БД
+//    }
 }
