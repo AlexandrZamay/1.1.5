@@ -1,6 +1,10 @@
 package jm.task.core.jdbc;
 
+import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
 import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
+import jm.task.core.jdbc.service.UserService;
+import jm.task.core.jdbc.service.UserServiceImpl;
+import org.hibernate.Session;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,19 +14,19 @@ import static org.hibernate.cfg.AvailableSettings.URL;
 
 public class Main {
     public static void main(String[] args) {
-        UserDaoJDBCImpl userDao = new UserDaoJDBCImpl();
+        UserService userService = new UserServiceImpl();
+        userService.createUsersTable();
 
-        userDao.createUsersTable();
-        userDao.saveUser("Nikita", "Lozhka", (byte) 25);
-        userDao.saveUser("John", "Titor", (byte) 47);
-        userDao.saveUser("Suzuha", "Amane", (byte) 8);
-        userDao.saveUser("Beauty", "Milf", (byte) 35);
+        userService.saveUser("Sasha", "Perepelkin", (byte)69);
+        userService.saveUser("Nikita", "Lozhka", (byte)22);
+        userService.saveUser("Beauty", "Milfa", (byte)42);
+        userService.saveUser("Someone", "Whosovich", (byte)15);
 
-        userDao.getAllUsers();
-        // Альтернативный способ вывода, чтобы не добавлять вывод в getAllUsers();
-        // userDao.getAllUsers().forEach(user -> System.out.println("User с именем - " + user.getName() + " добавлен в базу данных"));
+        userService.getAllUsers();
 
-        userDao.cleanUsersTable();
-        userDao.dropUsersTable();
-       }
+        userService.cleanUsersTable();
+        userService.dropUsersTable();
+
+        UserDaoHibernateImpl.closeGlobalSession();
+    }
 }
