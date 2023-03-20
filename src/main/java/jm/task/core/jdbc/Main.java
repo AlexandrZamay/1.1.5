@@ -22,7 +22,7 @@ public class Main {
         userService.saveUser("Beauty", "Milfa", (byte)42);
         userService.saveUser("Someone", "Whosovich", (byte)15);
 
-        userService.getAllUsers();
+        userService.getAllUsers().forEach(x -> System.out.println("User с именем " + x.getName() + " выведен в консоль"));
 
         userService.cleanUsersTable();
         userService.dropUsersTable();

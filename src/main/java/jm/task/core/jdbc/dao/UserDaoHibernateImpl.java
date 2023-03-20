@@ -24,59 +24,83 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
 
     public void createUsersTable() {
+        Session session = null;
         try {
             String sqlRequest = "CREATE TABLE IF NOT EXISTS User " +
                     "(id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, " +
                     " name VARCHAR(20), " +
                     " lastname VARCHAR(20), " +
                     " age INTEGER)";
-            Session session = SESSION_FACTORY.getCurrentSession();
+            session = SESSION_FACTORY.getCurrentSession();
             session.beginTransaction();
             Query query = session.createSQLQuery(sqlRequest).addEntity(User.class);
             query.executeUpdate();
 
             session.getTransaction().commit();
+            session.close();
         } catch (Exception e) {
-            closeGlobalSession();
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.out.println("Ошибка Hibernate");
+            e.printStackTrace();
         }
     }
 
     @Override
     public void dropUsersTable() {
+        Session session = null;
         try {
-        String sqlRequest = "DROP TABLE IF EXISTS user";
-        Session session = SESSION_FACTORY.getCurrentSession();
-        session.beginTransaction();
-        Query query = session.createSQLQuery(sqlRequest);
-        query.executeUpdate();
-        session.getTransaction().commit();
+            String sqlRequest = "DROP TABLE IF EXISTS user";
+            session = SESSION_FACTORY.getCurrentSession();
+            session.beginTransaction();
+            Query query = session.createSQLQuery(sqlRequest);
+            query.executeUpdate();
+            session.getTransaction().commit();
+            session.close();
         } catch (Exception e) {
-            closeGlobalSession();
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.out.println("Ошибка Hibernate");
+            e.printStackTrace();
         }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
+        Session session = null;
         try {
-        Session session = SESSION_FACTORY.getCurrentSession();
-        session.beginTransaction();
-        session.save(new User(name, lastName, age));
-        session.getTransaction().commit();
+            session = SESSION_FACTORY.getCurrentSession();
+            session.beginTransaction();
+            session.save(new User(name, lastName, age));
+            session.getTransaction().commit();
+            session.close();
         } catch (Exception e) {
-            closeGlobalSession();
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.out.println("Ошибка Hibernate");
+            e.printStackTrace();
         }
     }
 
     @Override
     public void removeUserById(long id) {
+        Session session = null;
         try {
-        Session session = SESSION_FACTORY.getCurrentSession();
-        session.beginTransaction();
-        User user = session.get(User.class, id);
-        session.remove(user);
-        session.getTransaction().commit();
+            session = SESSION_FACTORY.getCurrentSession();
+            session.beginTransaction();
+            User user = session.get(User.class, id);
+            session.remove(user);
+            session.getTransaction().commit();
+            session.close();
         } catch (Exception e) {
-            closeGlobalSession();
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.out.println("Ошибка Hibernate");
+            e.printStackTrace();
         }
     }
 
@@ -90,28 +114,36 @@ public class UserDaoHibernateImpl implements UserDao {
             Query query = session.createQuery("FROM User ");
             users = query.list();
             session.getTransaction().commit();
+            session.close();
         } catch (Exception e) {
             if (session != null) {
                 session.getTransaction().rollback();
             }
             System.out.println("Ошибка Hibernate");
-            closeGlobalSession();
+            e.printStackTrace();
         }
         return users;
     }
     @Override
     public void cleanUsersTable() {
+        Session session = null;
         try {
-        Session session = SESSION_FACTORY.getCurrentSession();
-        session.beginTransaction();
-        String sqlRequest = "DELETE FROM User";
-        session.createQuery(sqlRequest).executeUpdate();
-        session.getTransaction().commit();
-    } catch (Exception e) {
-        closeGlobalSession();
+            session = SESSION_FACTORY.getCurrentSession();
+            session.beginTransaction();
+            String sqlRequest = "DELETE FROM User";
+            session.createQuery(sqlRequest).executeUpdate();
+            session.getTransaction().commit();
+            session.close();
+        } catch (Exception e) {
+            if (session != null) {
+                session.getTransaction().rollback();
+            }
+            System.out.println("Ошибка Hibernate");
+            e.printStackTrace();
+        }
     }
-    }
-    public static void closeGlobalSession( ){
+    public static void closeGlobalSession(){
         SESSION_FACTORY.close();
     }
+
 }
